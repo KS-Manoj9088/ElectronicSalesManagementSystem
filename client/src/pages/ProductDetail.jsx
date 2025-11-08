@@ -119,31 +119,77 @@ const ProductDetail = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Images */}
         <div>
-          <div className="mb-4">
+          <div className="mb-4 bg-white rounded-xl shadow-lg overflow-hidden">
             {product.images && product.images.length > 0 ? (
-              <img
-                src={product.images[selectedImage]?.url}
-                alt={product.name}
-                className="w-full h-96 object-cover rounded-lg"
-              />
+              <div className="relative">
+                <img
+                  src={product.images[selectedImage]?.url}
+                  alt={product.name}
+                  className="w-full h-96 md:h-[500px] object-cover transition-opacity duration-300"
+                />
+                {product.images.length > 1 && (
+                  <>
+                    <button
+                      onClick={() =>
+                        setSelectedImage(
+                          selectedImage > 0
+                            ? selectedImage - 1
+                            : product.images.length - 1
+                        )
+                      }
+                      className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-all"
+                      aria-label="Previous image"
+                    >
+                      <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() =>
+                        setSelectedImage(
+                          selectedImage < product.images.length - 1
+                            ? selectedImage + 1
+                            : 0
+                        )
+                      }
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-all"
+                      aria-label="Next image"
+                    >
+                      <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </>
+                )}
+              </div>
             ) : (
-              <div className="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400">
-                No Image
+              <div className="w-full h-96 md:h-[500px] bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex flex-col items-center justify-center text-gray-400">
+                <svg className="w-24 h-24 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p className="text-lg font-semibold">No Image Available</p>
               </div>
             )}
           </div>
           {product.images && product.images.length > 1 && (
-            <div className="flex gap-2">
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
               {product.images.map((img, idx) => (
-                <img
+                <button
                   key={idx}
-                  src={img.url}
-                  alt={`${product.name} ${idx + 1}`}
                   onClick={() => setSelectedImage(idx)}
-                  className={`w-20 h-20 object-cover rounded cursor-pointer border-2 ${
-                    selectedImage === idx ? 'border-blue-600' : 'border-gray-300'
+                  className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                    selectedImage === idx
+                      ? 'border-blue-600 ring-2 ring-blue-300 scale-105'
+                      : 'border-gray-300 hover:border-gray-400'
                   }`}
-                />
+                  aria-label={`View image ${idx + 1}`}
+                >
+                  <img
+                    src={img.url}
+                    alt={`${product.name} ${idx + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
               ))}
             </div>
           )}

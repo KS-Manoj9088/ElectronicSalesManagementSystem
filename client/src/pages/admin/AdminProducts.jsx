@@ -20,6 +20,9 @@ const AdminProducts = () => {
     stock: '',
     featured: false,
   });
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
   const { showAlert } = useAlert();
   const navigate = useNavigate();
 
@@ -41,16 +44,96 @@ const AdminProducts = () => {
     }
   };
 
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length > 5) {
+      showAlert('You can only upload up to 5 images', 'warning');
+      return;
+    }
+
+    setSelectedImages(files);
+    
+    // Create previews
+    const previews = files.map((file) => URL.createObjectURL(file));
+    setImagePreviews(previews);
+  };
+
+  const removeImagePreview = (index) => {
+    const newFiles = selectedImages.filter((_, i) => i !== index);
+    const newPreviews = imagePreviews.filter((_, i) => i !== index);
+    setSelectedImages(newFiles);
+    setImagePreviews(newPreviews);
+  };
+
+  const handleDeleteImage = async (productId, imageId) => {
+    if (!window.confirm('Are you sure you want to delete this image?')) {
+      return;
+    }
+    try {
+      await productsAPI.deleteImage(productId, imageId);
+      showAlert('Image deleted successfully!', 'success');
+      fetchProducts();
+      // Refresh editing product if it's the one being edited
+      if (editingProduct && editingProduct._id === productId) {
+        const res = await productsAPI.getProduct(productId);
+        setEditingProduct(res.data);
+      }
+    } catch (error) {
+      showAlert(
+        error.response?.data?.message || 'Failed to delete image',
+        'error'
+      );
+    }
+  };
+
+  const uploadImages = async (productId) => {
+    if (selectedImages.length === 0) return;
+
+    setUploadingImages(true);
+    try {
+      const formData = new FormData();
+      selectedImages.forEach((file) => {
+        formData.append('images', file);
+      });
+
+      await productsAPI.uploadImages(productId, formData);
+      showAlert('Images uploaded successfully!', 'success');
+      setSelectedImages([]);
+      setImagePreviews([]);
+      
+      // Refresh product data
+      const res = await productsAPI.getProduct(productId);
+      setEditingProduct(res.data);
+      fetchProducts();
+    } catch (error) {
+      showAlert(
+        error.response?.data?.message || 'Failed to upload images',
+        'error'
+      );
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      let productId;
       if (editingProduct) {
         await productsAPI.updateProduct(editingProduct._id, formData);
+        productId = editingProduct._id;
         showAlert('Product updated successfully!', 'success');
       } else {
-        await productsAPI.createProduct(formData);
+        const res = await productsAPI.createProduct(formData);
+        productId = res.data._id;
         showAlert('Product created successfully!', 'success');
       }
+
+      // Upload images if any
+      if (selectedImages.length > 0) {
+        await uploadImages(productId);
+      }
+
       setShowForm(false);
       setEditingProduct(null);
       setFormData({
@@ -63,6 +146,8 @@ const AdminProducts = () => {
         stock: '',
         featured: false,
       });
+      setSelectedImages([]);
+      setImagePreviews([]);
       fetchProducts();
     } catch (error) {
       showAlert(
@@ -84,6 +169,8 @@ const AdminProducts = () => {
       stock: product.stock,
       featured: product.featured || false,
     });
+    setSelectedImages([]);
+    setImagePreviews([]);
     setShowForm(true);
   };
 
@@ -134,6 +221,8 @@ const AdminProducts = () => {
                 stock: '',
                 featured: false,
               });
+              setSelectedImages([]);
+              setImagePreviews([]);
             }}
             className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-semibold flex items-center gap-2"
           >
@@ -289,6 +378,121 @@ const AdminProducts = () => {
                   Featured Product
                 </label>
               </div>
+
+              {/* Image Upload Section */}
+              <div className="border-t border-gray-200 pt-6">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Product Images {editingProduct && '(Upload additional images)'}
+                </label>
+                
+                {/* Existing Images (when editing) */}
+                {editingProduct && editingProduct.images && editingProduct.images.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-sm text-gray-600 mb-2">Current Images:</p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {editingProduct.images.map((img, idx) => (
+                        <div key={idx} className="relative group">
+                          <img
+                            src={img.url}
+                            alt={`${formData.name} ${idx + 1}`}
+                            className="w-full h-32 object-cover rounded-lg border-2 border-gray-200"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteImage(editingProduct._id, img._id)}
+                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                            title="Delete image"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Image Upload Input */}
+                <div className="mb-4">
+                  <label htmlFor="image-upload" className="block w-full cursor-pointer">
+                    <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-400 transition-colors">
+                      <div className="space-y-1 text-center">
+                        <svg
+                          className="mx-auto h-12 w-12 text-gray-400"
+                          stroke="currentColor"
+                          fill="none"
+                          viewBox="0 0 48 48"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                            strokeWidth={2}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        <div className="flex text-sm text-gray-600 justify-center">
+                          <span className="relative rounded-md font-medium text-blue-600 hover:text-blue-500">
+                            Upload images
+                          </span>
+                          <p className="pl-1">or drag and drop</p>
+                        </div>
+                        <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5 images (max 5MB each)</p>
+                      </div>
+                    </div>
+                  </label>
+                  <input
+                    id="image-upload"
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                </div>
+
+                {/* Image Previews */}
+                {imagePreviews.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-sm text-gray-600 mb-2">New Images to Upload:</p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {imagePreviews.map((preview, idx) => (
+                        <div key={idx} className="relative group">
+                          <img
+                            src={preview}
+                            alt={`Preview ${idx + 1}`}
+                            className="w-full h-32 object-cover rounded-lg border-2 border-blue-300"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImagePreview(idx)}
+                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                            title="Remove image"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Upload Images Button (for existing products) */}
+                {editingProduct && selectedImages.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => uploadImages(editingProduct._id)}
+                    disabled={uploadingImages}
+                    className="mb-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {uploadingImages ? 'Uploading...' : 'Upload Images Now'}
+                  </button>
+                )}
+              </div>
+
               <div className="flex gap-4">
                 <button
                   type="submit"
