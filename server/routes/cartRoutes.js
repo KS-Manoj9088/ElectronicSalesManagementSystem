@@ -1,0 +1,24 @@
+import express from 'express';
+import {
+  getCart,
+  addToCart,
+  updateCartItem,
+  removeFromCart,
+  clearCart,
+} from '../controllers/cartController.js';
+import { protect } from '../middleware/auth.js';
+import {
+  addToCartValidation,
+  validate,
+} from '../middleware/validation.js';
+
+const router = express.Router();
+
+// All routes are protected
+router.get('/', protect, getCart);
+router.post('/', protect, addToCartValidation, validate, addToCart);
+router.put('/:itemId', protect, updateCartItem);
+router.delete('/:itemId', protect, removeFromCart);
+router.delete('/', protect, clearCart);
+
+export default router;
