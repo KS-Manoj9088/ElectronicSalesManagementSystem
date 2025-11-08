@@ -108,8 +108,18 @@ const AdminProducts = () => {
   return (
     <ProtectedRoute adminOnly>
       <div className="container mx-auto px-4 py-8">
+        <div className="mb-6">
+          <div className="flex items-center gap-4 mb-2">
+            <Link to="/admin/dashboard" className="text-gray-600 hover:text-blue-600 font-semibold">
+              ← Back to Dashboard
+            </Link>
+          </div>
+        </div>
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Manage Products</h1>
+          <div>
+            <h1 className="text-4xl font-extrabold mb-2 gradient-text">Manage Products</h1>
+            <p className="text-gray-600">Add, edit, or delete products from your store</p>
+          </div>
           <button
             onClick={() => {
               setShowForm(!showForm);
@@ -125,18 +135,28 @@ const AdminProducts = () => {
                 featured: false,
               });
             }}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-semibold flex items-center gap-2"
           >
-            {showForm ? 'Cancel' : '+ Add Product'}
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            {showForm ? 'Cancel' : 'Add Product'}
           </button>
         </div>
 
         {/* Product Form */}
         {showForm && (
-          <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-            <h2 className="text-2xl font-bold mb-4">
-              {editingProduct ? 'Edit Product' : 'Add New Product'}
-            </h2>
+          <div className="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-100">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+              <h2 className="text-3xl font-bold text-gray-800">
+                {editingProduct ? 'Edit Product' : 'Add New Product'}
+              </h2>
+            </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -269,83 +289,127 @@ const AdminProducts = () => {
                   Featured Product
                 </label>
               </div>
-              <button
-                type="submit"
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                {editingProduct ? 'Update Product' : 'Create Product'}
-              </button>
+              <div className="flex gap-4">
+                <button
+                  type="submit"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-semibold"
+                >
+                  {editingProduct ? 'Update Product' : 'Create Product'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowForm(false);
+                    setEditingProduct(null);
+                  }}
+                  className="bg-gray-200 text-gray-700 px-6 py-3 rounded-xl hover:bg-gray-300 transition-colors font-semibold"
+                >
+                  Cancel
+                </button>
+              </div>
             </form>
           </div>
         )}
 
         {/* Products List */}
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Product
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Category
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Price
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Stock
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {products.map((product) => (
-                  <tr key={product._id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                  <tr key={product._id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4">
                       <div className="flex items-center">
                         {product.images && product.images.length > 0 ? (
                           <img
                             src={product.images[0].url}
                             alt={product.name}
-                            className="w-12 h-12 object-cover rounded mr-3"
+                            className="w-16 h-16 object-cover rounded-lg mr-4 shadow-sm"
                           />
                         ) : (
-                          <div className="w-12 h-12 bg-gray-200 rounded mr-3"></div>
+                          <div className="w-16 h-16 bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg mr-4 flex items-center justify-center">
+                            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                          </div>
                         )}
                         <div>
-                          <div className="text-sm font-medium text-gray-900">
+                          <div className="text-sm font-bold text-gray-900 mb-1">
                             {product.name}
                           </div>
-                          <div className="text-sm text-gray-500">{product.brand}</div>
+                          <div className="text-xs text-gray-500">{product.brand}</div>
+                          {product.featured && (
+                            <span className="inline-block mt-1 px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs rounded-full font-semibold">
+                              ⭐ Featured
+                            </span>
+                          )}
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {product.category}
+                    <td className="px-6 py-4">
+                      <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-semibold">
+                        {product.category}
+                      </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      ${product.finalPrice?.toFixed(2) || product.price?.toFixed(2)}
+                    <td className="px-6 py-4">
+                      <div>
+                        <span className="text-lg font-bold text-blue-600">
+                          ${product.finalPrice?.toFixed(2) || product.price?.toFixed(2)}
+                        </span>
+                        {product.discount > 0 && (
+                          <span className="text-xs text-gray-400 line-through ml-2">
+                            ${product.price?.toFixed(2)}
+                          </span>
+                        )}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {product.stock}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button
-                        onClick={() => handleEdit(product)}
-                        className="text-blue-600 hover:text-blue-900 mr-4"
+                    <td className="px-6 py-4">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          product.stock > 10
+                            ? 'bg-green-100 text-green-800'
+                            : product.stock > 0
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}
                       >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product._id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Delete
-                      </button>
+                        {product.stock} units
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => handleEdit(product)}
+                          className="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors font-semibold text-sm"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(product._id)}
+                          className="bg-red-100 text-red-700 px-4 py-2 rounded-lg hover:bg-red-200 transition-colors font-semibold text-sm"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

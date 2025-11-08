@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { adminAPI } from '../../utils/api';
 import { useAlert } from '../../context/AlertContext';
 import ProtectedRoute from '../../components/ProtectedRoute';
@@ -75,7 +76,15 @@ const AdminUsers = () => {
   return (
     <ProtectedRoute adminOnly>
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8">Manage Users</h1>
+        <div className="mb-6">
+          <Link to="/admin/dashboard" className="text-gray-600 hover:text-blue-600 font-semibold">
+            ← Back to Dashboard
+          </Link>
+        </div>
+        <div className="mb-8">
+          <h1 className="text-4xl font-extrabold mb-2 gradient-text">Manage Users</h1>
+          <p className="text-gray-600">View, block, and manage user accounts</p>
+        </div>
 
         {/* Filters */}
         <div className="bg-white p-4 rounded-lg shadow-md mb-6">

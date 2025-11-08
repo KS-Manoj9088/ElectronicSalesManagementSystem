@@ -45,6 +45,18 @@ const Login = () => {
               create a new account
             </Link>
           </p>
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm font-semibold text-blue-900 mb-2">👨‍💼 Admin Access:</p>
+            <p className="text-xs text-blue-700">
+              Email: <span className="font-mono">admin@example.com</span>
+            </p>
+            <p className="text-xs text-blue-700">
+              Password: <span className="font-mono">admin123</span>
+            </p>
+            <p className="text-xs text-blue-600 mt-2">
+              After login, click "Admin" in the header to access the dashboard
+            </p>
+          </div>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
