@@ -1,5 +1,5 @@
-import User from "../models/User";
-import { generateToken } from "../middleware/auth";
+import User from '../models/User.js';
+import { generateToken } from '../middleware/auth.js';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 
@@ -76,8 +76,34 @@ export const login = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-};   
+};
 
+// @desc    Get user profile
+// @route   GET /api/auth/profile
+// @access  Private
+export const getProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+      addresses: user.addresses,
+      isActive: user.isActive,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 // @desc    Update user profile
 // @route   PUT /api/auth/profile

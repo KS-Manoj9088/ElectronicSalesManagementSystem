@@ -10,7 +10,7 @@ import {
   addAddress,
   updateAddress,
   deleteAddress,
-} from '../controllers/authController.js';
+} from '../controllers/authControllers.js';
 import { protect } from '../middleware/auth.js';
 import {
   signupValidation,
