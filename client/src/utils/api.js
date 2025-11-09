@@ -16,6 +16,10 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    // Don't set Content-Type for FormData - let browser set it with boundary
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
     return config;
   },
   (error) => {
@@ -60,9 +64,10 @@ export const productsAPI = {
   createProduct: (data) => api.post('/products', data),
   updateProduct: (id, data) => api.put(`/products/${id}`, data),
   deleteProduct: (id) => api.delete(`/products/${id}`),
-  uploadImages: (id, formData) => api.post(`/products/${id}/images`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  }),
+  uploadImages: (id, formData) => {
+    // FormData - Content-Type will be set automatically by axios with boundary
+    return api.post(`/products/${id}/images`, formData);
+  },
   deleteImage: (id, imageId) => api.delete(`/products/${id}/images/${imageId}`),
   addReview: (id, data) => api.post(`/products/${id}/reviews`, data),
   deleteReview: (id, reviewId) => api.delete(`/products/${id}/reviews/${reviewId}`),

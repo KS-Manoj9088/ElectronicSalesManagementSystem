@@ -197,6 +197,13 @@ export const deleteProduct = async (req, res) => {
 // @access  Private/Admin
 export const uploadProductImages = async (req, res) => {
   try {
+    // Check Cloudinary configuration
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      return res.status(500).json({ 
+        message: 'Cloudinary configuration is missing. Please check your environment variables.' 
+      });
+    }
+
     const product = await Product.findById(req.params.id);
 
     if (!product) {
@@ -209,16 +216,40 @@ export const uploadProductImages = async (req, res) => {
 
     const uploadPromises = req.files.map((file) => {
       return new Promise((resolve, reject) => {
+        // Validate file buffer
+        if (!file.buffer) {
+          reject(new Error('File buffer is missing'));
+          return;
+        }
+
         const uploadStream = cloudinary.uploader.upload_stream(
           {
             folder: 'electronics-store/products',
             transformation: [{ width: 800, height: 800, crop: 'limit' }],
+            resource_type: 'image',
           },
           (error, result) => {
-            if (error) reject(error);
-            else resolve({ public_id: result.public_id, url: result.secure_url });
+            if (error) {
+              console.error('Cloudinary upload error:', error);
+              reject(new Error(`Failed to upload image: ${error.message}`));
+            } else if (!result) {
+              reject(new Error('Upload failed: No result from Cloudinary'));
+            } else {
+              resolve({ 
+                public_id: result.public_id, 
+                url: result.secure_url 
+              });
+            }
           }
         );
+
+        // Handle stream errors
+        uploadStream.on('error', (error) => {
+          console.error('Upload stream error:', error);
+          reject(new Error(`Stream error: ${error.message}`));
+        });
+
+        // Write buffer to stream
         uploadStream.end(file.buffer);
       });
     });
@@ -229,7 +260,10 @@ export const uploadProductImages = async (req, res) => {
 
     res.json(product.images);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error uploading images:', error);
+    res.status(500).json({ 
+      message: error.message || 'Failed to upload images. Please check your Cloudinary configuration and try again.' 
+    });
   }
 };
 

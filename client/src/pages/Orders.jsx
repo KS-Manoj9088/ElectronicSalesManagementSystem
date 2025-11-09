@@ -4,6 +4,7 @@ import { ordersAPI } from '../utils/api';
 import { useAlert } from '../context/AlertContext';
 import ProtectedRoute from '../components/ProtectedRoute';
 import Loading from '../components/Loading';
+import { getImageUrl } from '../utils/imageUtils';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -101,9 +102,10 @@ const Orders = () => {
                       <div key={idx} className="flex items-center gap-4">
                         {item.image && (
                           <img
-                            src={item.image}
+                            src={getImageUrl(item.image)}
                             alt={item.name}
                             className="w-16 h-16 object-cover rounded"
+                            key={item.image}
                           />
                         )}
                         <div className="flex-1">

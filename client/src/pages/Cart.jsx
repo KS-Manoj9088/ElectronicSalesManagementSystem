@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAlert } from '../context/AlertContext';
 import Loading from '../components/Loading';
+import { getProductImageUrl } from '../utils/imageUtils';
 
 const Cart = () => {
   const { cart, loading, updateCartItem, removeFromCart, clearCart } = useCart();
@@ -88,9 +89,10 @@ const Cart = () => {
             >
               {item.product?.images && item.product.images.length > 0 ? (
                 <img
-                  src={item.product.images[0].url}
+                  src={getProductImageUrl(item.product.images)}
                   alt={item.product.name}
                   className="w-24 h-24 object-cover rounded"
+                  key={item.product.images[0].url}
                 />
               ) : (
                 <div className="w-24 h-24 bg-gray-200 rounded flex items-center justify-center text-gray-400">

@@ -6,6 +6,7 @@ import { useAlert } from '../context/AlertContext';
 import { ordersAPI, authAPI } from '../utils/api';
 import Loading from '../components/Loading';
 import ProtectedRoute from '../components/ProtectedRoute';
+import { getProductImageUrl } from '../utils/imageUtils';
 
 const Checkout = () => {
   const { cart, fetchCart } = useCart();
@@ -316,9 +317,10 @@ const Checkout = () => {
                   <div key={item._id} className="flex items-center gap-4">
                     {item.product?.images && item.product.images.length > 0 ? (
                       <img
-                        src={item.product.images[0].url}
+                        src={getProductImageUrl(item.product.images)}
                         alt={item.product.name}
                         className="w-16 h-16 object-cover rounded"
+                        key={item.product.images[0].url}
                       />
                     ) : (
                       <div className="w-16 h-16 bg-gray-200 rounded"></div>

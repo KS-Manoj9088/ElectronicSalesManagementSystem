@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useAlert } from '../context/AlertContext';
 import { wishlistAPI } from '../utils/api';
 import Loading from '../components/Loading';
+import { getImageUrl } from '../utils/imageUtils';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -123,9 +124,10 @@ const ProductDetail = () => {
             {product.images && product.images.length > 0 ? (
               <div className="relative">
                 <img
-                  src={product.images[selectedImage]?.url}
+                  src={getImageUrl(product.images[selectedImage]?.url)}
                   alt={product.name}
                   className="w-full h-96 md:h-[500px] object-cover transition-opacity duration-300"
+                  key={product.images[selectedImage]?.url} // Force re-render when image changes
                 />
                 {product.images.length > 1 && (
                   <>
@@ -185,9 +187,10 @@ const ProductDetail = () => {
                   aria-label={`View image ${idx + 1}`}
                 >
                   <img
-                    src={img.url}
+                    src={getImageUrl(img.url)}
                     alt={`${product.name} ${idx + 1}`}
                     className="w-full h-full object-cover"
+                    key={img.url} // Force re-render when image changes
                   />
                 </button>
               ))}

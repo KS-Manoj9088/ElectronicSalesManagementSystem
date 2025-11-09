@@ -1,6 +1,8 @@
 import Order from '../models/Order.js';
 import Cart from '../models/Cart.js';
 import Product from '../models/Product.js';
+import User from '../models/User.js';
+import { sendEmail, emailTemplates } from '../utils/emailService.js';
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -66,6 +68,26 @@ export const createOrder = async (req, res) => {
     // Clear cart
     cart.items = [];
     await cart.save();
+
+    // Send order confirmation email
+    try {
+      const user = await User.findById(req.user._id);
+      if (user && user.email) {
+        // Order items are already embedded, no need to populate
+        const emailTemplate = emailTemplates.orderConfirmation(createdOrder, user);
+        const emailResult = await sendEmail({
+          to: user.email,
+          subject: emailTemplate.subject,
+          html: emailTemplate.html,
+        });
+        if (!emailResult.success) {
+          console.error('Failed to send order confirmation email:', emailResult.error);
+        }
+      }
+    } catch (emailError) {
+      // Log error but don't fail the order creation
+      console.error('Error sending order confirmation email:', emailError);
+    }
 
     res.status(201).json(createdOrder);
   } catch (error) {
@@ -171,12 +193,13 @@ export const updateOrderStatus = async (req, res) => {
   try {
     const { status, trackingNumber } = req.body;
 
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findById(req.params.id).populate('user', 'name email');
 
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
 
+    const previousStatus = order.orderStatus;
     order.orderStatus = status;
 
     if (trackingNumber) {
@@ -188,6 +211,34 @@ export const updateOrderStatus = async (req, res) => {
     }
 
     await order.save();
+
+    // Send email notifications based on status change
+    try {
+      const user = order.user;
+      if (user && user.email) {
+        // Send email when order is shipped
+        if (status === 'Shipped' && previousStatus !== 'Shipped') {
+          const emailTemplate = emailTemplates.orderShipped(order, user, trackingNumber);
+          await sendEmail({
+            to: user.email,
+            subject: emailTemplate.subject,
+            html: emailTemplate.html,
+          });
+        }
+        // Send email when order is delivered
+        else if (status === 'Delivered' && previousStatus !== 'Delivered') {
+          const emailTemplate = emailTemplates.orderDelivered(order, user);
+          await sendEmail({
+            to: user.email,
+            subject: emailTemplate.subject,
+            html: emailTemplate.html,
+          });
+        }
+      }
+    } catch (emailError) {
+      // Log error but don't fail the status update
+      console.error('Error sending status update email:', emailError);
+    }
 
     res.json(order);
   } catch (error) {

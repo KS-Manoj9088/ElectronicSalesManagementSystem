@@ -4,6 +4,7 @@ import { adminAPI } from '../../utils/api';
 import { useAlert } from '../../context/AlertContext';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import Loading from '../../components/Loading';
+import { getProductImageUrl, getImageUrl } from '../../utils/imageUtils';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -147,7 +148,12 @@ const AdminDashboard = () => {
                           <div>
                             <p className="font-semibold text-gray-800">{product.name}</p>
                             {product.image && (
-                              <img src={product.image} alt={product.name} className="w-12 h-12 object-cover rounded mt-2" />
+                              <img 
+                                src={getImageUrl(product.image)} 
+                                alt={product.name} 
+                                className="w-12 h-12 object-cover rounded mt-2"
+                                key={product.image}
+                              />
                             )}
                           </div>
                         </div>
@@ -245,9 +251,10 @@ const AdminDashboard = () => {
                   <div className="flex items-center gap-3">
                     {product.images && product.images.length > 0 ? (
                       <img
-                        src={product.images[0].url}
+                        src={getProductImageUrl(product.images)}
                         alt={product.name}
                         className="w-12 h-12 object-cover rounded"
+                        key={product.images[0].url}
                       />
                     ) : (
                       <div className="w-12 h-12 bg-gray-200 rounded"></div>

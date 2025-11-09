@@ -1,7 +1,13 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+
+// Load env variables first
+dotenv.config();
+
 import connectDB from './config/db.js';
+import './config/cloudinary.js'; // Initialize Cloudinary
+import './utils/emailService.js'; // Initialize Email Service
 import { notFound, errorHandler } from './middleware/error.js';
 
 // Import routes
@@ -11,9 +17,6 @@ import cartRoutes from './routes/cartRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import wishlistRoutes from './routes/wishlistRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
-
-// Load env variables
-dotenv.config();
 
 // Connect to database
 connectDB();

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { productsAPI } from '../utils/api';
 import ProductCard from '../components/ProductCard';
 import Loading from '../components/Loading';
@@ -7,10 +7,12 @@ import Loading from '../components/Loading';
 const Home = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
   useEffect(() => {
     const fetchFeatured = async () => {
       try {
+        // Add cache-busting parameter to ensure fresh data
         const res = await productsAPI.getFeaturedProducts();
         setFeaturedProducts(res.data);
       } catch (error) {
@@ -20,7 +22,7 @@ const Home = () => {
       }
     };
     fetchFeatured();
-  }, []);
+  }, [location.key]); // Re-fetch when location changes (including when navigating back)
 
   if (loading) return <Loading />;
 

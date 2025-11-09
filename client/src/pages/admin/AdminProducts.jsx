@@ -4,6 +4,7 @@ import { productsAPI } from '../../utils/api';
 import { useAlert } from '../../context/AlertContext';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import Loading from '../../components/Loading';
+import { getImageUrl, getProductImageUrl } from '../../utils/imageUtils';
 
 const AdminProducts = () => {
   const [products, setProducts] = useState([]);
@@ -393,9 +394,10 @@ const AdminProducts = () => {
                       {editingProduct.images.map((img, idx) => (
                         <div key={idx} className="relative group">
                           <img
-                            src={img.url}
+                            src={getImageUrl(img.url)}
                             alt={`${formData.name} ${idx + 1}`}
                             className="w-full h-32 object-cover rounded-lg border-2 border-gray-200"
+                            key={img.url}
                           />
                           <button
                             type="button"
@@ -545,9 +547,10 @@ const AdminProducts = () => {
                       <div className="flex items-center">
                         {product.images && product.images.length > 0 ? (
                           <img
-                            src={product.images[0].url}
+                            src={getProductImageUrl(product.images)}
                             alt={product.name}
                             className="w-16 h-16 object-cover rounded-lg mr-4 shadow-sm"
+                            key={product.images[0].url}
                           />
                         ) : (
                           <div className="w-16 h-16 bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg mr-4 flex items-center justify-center">
