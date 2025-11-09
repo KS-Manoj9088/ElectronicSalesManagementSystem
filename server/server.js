@@ -18,10 +18,8 @@ import orderRoutes from './routes/orderRoutes.js';
 import wishlistRoutes from './routes/wishlistRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 
-// Connect to database (only if not in Vercel - Vercel will handle this in serverless function)
-if (process.env.VERCEL !== '1') {
-  connectDB();
-}
+// Connect to database
+connectDB();
 
 const app = express();
 
@@ -36,34 +34,25 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-// For Vercel: routes are already prefixed with /api, so we don't add it again
-// For local: we add /api prefix
-const apiPrefix = process.env.VERCEL === '1' ? '' : '/api';
-
-app.get(apiPrefix + '/', (req, res) => {
+app.get('/', (req, res) => {
   res.json({ message: 'Electronics Store API is running!' });
 });
 
-app.use(apiPrefix + '/auth', authRoutes);
-app.use(apiPrefix + '/products', productRoutes);
-app.use(apiPrefix + '/cart', cartRoutes);
-app.use(apiPrefix + '/orders', orderRoutes);
-app.use(apiPrefix + '/wishlist', wishlistRoutes);
-app.use(apiPrefix + '/admin', adminRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Error handling middleware
 app.use(notFound);
 app.use(errorHandler);
 
-// Export app for Vercel serverless functions
-export default app;
+const PORT = process.env.PORT || 5000;
 
-// Only start server if not in Vercel environment
-if (process.env.VERCEL !== '1') {
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(
-      `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`
-    );
-  });
-}
+app.listen(PORT, () => {
+  console.log(
+    `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`
+  );
+});
