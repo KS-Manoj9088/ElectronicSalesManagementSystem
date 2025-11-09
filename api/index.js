@@ -1,13 +1,13 @@
 // Vercel Serverless Function entry point
-import express from 'express';
 import dotenv from 'dotenv';
-import cors from 'cors';
 
 // Load env variables
 dotenv.config();
 
 // Initialize services
 let dbConnected = false;
+let app = null;
+
 const initializeServices = async () => {
   if (!dbConnected) {
     try {
@@ -16,20 +16,33 @@ const initializeServices = async () => {
       await import('../server/config/cloudinary.js');
       await import('../server/utils/emailService.js');
       dbConnected = true;
+      console.log('Services initialized successfully');
     } catch (error) {
       console.error('Service initialization error:', error);
+      throw error;
     }
+  }
+  
+  // Import Express app
+  if (!app) {
+    const { default: setupApp } = await import('../server/server.js');
+    app = setupApp;
   }
 };
 
-// Import Express app setup
-import { default as setupApp } from '../server/server.js';
-
 // Create handler function
 export default async function handler(req, res) {
-  // Initialize services on first request
-  await initializeServices();
-  
-  // Handle request with Express app
-  return setupApp(req, res);
+  try {
+    // Initialize services on first request
+    await initializeServices();
+    
+    // Handle request with Express app
+    return app(req, res);
+  } catch (error) {
+    console.error('Handler error:', error);
+    res.status(500).json({ 
+      message: 'Internal server error', 
+      error: error.message 
+    });
+  }
 }

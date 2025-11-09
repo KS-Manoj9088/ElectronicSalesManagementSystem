@@ -36,16 +36,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.get('/', (req, res) => {
+// For Vercel: routes are already prefixed with /api, so we don't add it again
+// For local: we add /api prefix
+const apiPrefix = process.env.VERCEL === '1' ? '' : '/api';
+
+app.get(apiPrefix + '/', (req, res) => {
   res.json({ message: 'Electronics Store API is running!' });
 });
 
-app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/cart', cartRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/wishlist', wishlistRoutes);
-app.use('/api/admin', adminRoutes);
+app.use(apiPrefix + '/auth', authRoutes);
+app.use(apiPrefix + '/products', productRoutes);
+app.use(apiPrefix + '/cart', cartRoutes);
+app.use(apiPrefix + '/orders', orderRoutes);
+app.use(apiPrefix + '/wishlist', wishlistRoutes);
+app.use(apiPrefix + '/admin', adminRoutes);
 
 // Error handling middleware
 app.use(notFound);
