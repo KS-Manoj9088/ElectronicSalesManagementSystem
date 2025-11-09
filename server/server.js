@@ -18,8 +18,10 @@ import orderRoutes from './routes/orderRoutes.js';
 import wishlistRoutes from './routes/wishlistRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 
-// Connect to database
-connectDB();
+// Connect to database (only if not in Vercel - Vercel will handle this in serverless function)
+if (process.env.VERCEL !== '1') {
+  connectDB();
+}
 
 const app = express();
 
@@ -49,10 +51,15 @@ app.use('/api/admin', adminRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
+// Export app for Vercel serverless functions
+export default app;
 
-app.listen(PORT, () => {
-  console.log(
-    `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`
-  );
-});
+// Only start server if not in Vercel environment
+if (process.env.VERCEL !== '1') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(
+      `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`
+    );
+  });
+}

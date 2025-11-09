@@ -1,0 +1,16 @@
+# Ignore files and directories
+server/
+node_modules/
+.git/
+.env
+.env.local
+*.log
+.DS_Store
+
+# Documentation
+*.md
+!README.md
+
+# Backend files (deploy separately)
+server/
+
