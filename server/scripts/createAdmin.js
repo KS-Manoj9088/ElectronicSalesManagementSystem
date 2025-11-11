@@ -11,8 +11,8 @@ const createAdmin = async () => {
     const { name, email, password } = process.argv.slice(2);
 
     if (!name || !email || !password) {
-      console.log('Usage: node scripts/createAdmin.js <name> <email> <password>');
-      console.log('Example: node scripts/createAdmin.js "Admin User" admin@example.com admin123');
+      //console.log('Usage: node scripts/createAdmin.js <name> <email> <password>');
+      //console.log('Example: node scripts/createAdmin.js "Admin User" admin@example.com admin123');
       process.exit(1);
     }
 
@@ -20,16 +20,16 @@ const createAdmin = async () => {
     const existingAdmin = await User.findOne({ email });
     if (existingAdmin) {
       if (existingAdmin.role === 'admin') {
-        console.log('❌ Admin with this email already exists!');
+        //console.log('❌ Admin with this email already exists!');
         process.exit(1);
       } else {
         // Update existing user to admin
         existingAdmin.role = 'admin';
         existingAdmin.password = password; // Will be hashed by pre-save hook
         await existingAdmin.save();
-        console.log('✅ Existing user updated to admin!');
-        console.log(`Email: ${email}`);
-        console.log(`Password: ${password}`);
+        //console.log('✅ Existing user updated to admin!');
+        //console.log(`Email: ${email}`);
+        //console.log(`Password: ${password}`);
         process.exit(0);
       }
     }
