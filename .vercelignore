@@ -1,6 +1,5 @@
 # Ignore files and directories
-server/
-api/
+
 node_modules/
 .git/
 .env

@@ -1,11 +1,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   build: {
-    outDir: 'dist',
+    outDir: '../dist', // Move outside client folder for Vercel root deployment
     assetsDir: 'assets',
     sourcemap: false,
     rollupOptions: {
