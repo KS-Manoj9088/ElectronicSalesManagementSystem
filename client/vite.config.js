@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   build: {
-    outDir: '../dist', // Move outside client folder for Vercel root deployment
+    outDir: 'dist', // Move outside client folder for Vercel root deployment
     assetsDir: 'assets',
     sourcemap: false,
     rollupOptions: {
