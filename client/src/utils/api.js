@@ -1,6 +1,14 @@
 import axios from 'axios';
 
+// Get API URL from environment variable
+// For production: https://electro-bazaar-backend.onrender.com/api
+// For development: http://localhost:5000/api
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+// Log API URL in development to help debug
+if (import.meta.env.DEV) {
+  console.log('API URL:', API_URL);
+}
 
 const api = axios.create({
   baseURL: API_URL,
@@ -31,6 +39,25 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Log error details in development
+    if (import.meta.env.DEV) {
+      console.error('API Error:', {
+        message: error.message,
+        url: error.config?.url,
+        status: error.response?.status,
+        data: error.response?.data,
+      });
+    }
+
+    // Handle network errors (backend not reachable)
+    if (!error.response) {
+      console.error('Network Error: Backend server is not reachable');
+      return Promise.reject({
+        message: 'Unable to connect to server. Please check your internet connection and ensure the backend is running.',
+        isNetworkError: true,
+      });
+    }
+
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
