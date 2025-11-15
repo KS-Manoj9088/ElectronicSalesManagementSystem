@@ -3,10 +3,11 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  base: '/',
   build: {
-   // Move outside client folder for Vercel root deployment
     assetsDir: 'assets',
     sourcemap: false,
+    outDir: 'dist',
     rollupOptions: {
       output: {
         manualChunks: {
